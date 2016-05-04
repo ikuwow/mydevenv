@@ -1,0 +1,29 @@
+---
+- name: Disable SELinux
+  hosts: all
+  become: true
+
+  tasks:
+    - package: name=libselinux-python state=latest
+    - selinux: state=disabled
+      notify:
+        - Reboot
+        - Pause for reboot
+        - Check ssh port up
+
+  handlers:
+    - name: Reboot
+      command: /sbin/reboot
+    - name: Pause for reboot
+      local_action: wait_for host=172.17.21.72 port=22 state=stopped
+      become: false
+    - name: Check ssh port up
+      wait_for: host=172.17.21.72 state=started delay=30 timeout=300 port=22
+      delegate_to: 127.0.0.1
+      become: false
+
+- name: Setup timezone
+  hosts: all
+  become: true
+  roles:
+    - role: supercoder.server-time

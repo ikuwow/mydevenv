@@ -1,0 +1,2 @@
+ntp_enabled: true
+ntp_timezone: Asia/Tokyo
